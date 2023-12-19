@@ -1,35 +1,39 @@
-import React from "react";
-import Posts from "./modules/Posts";
+import React, { useEffect, useState } from "react";
+import Comment from "./modules/Comments";
+import axios from "axios";
 
-function App() {
-  const [data, setData] = React.useState(null);
+const App = () => {
+  const [posts, setPosts] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
-  React.useEffect(() => {
-    fetch("/login")
-      .then((res) => res.json())
-      .then((data) => setData(data.usr));
+  let usr = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    axios.get("/home").then((resp) => setPosts(resp.data.posts));
   }, []);
 
+  const handlePostClick = (postId) => {
+    setIsModalOpen(true);
+    setSelectedPostId(postId);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          {!data
-            ? "Loading..."
-            : data.username +
-              " " +
-              data.email +
-              " " +
-              data.profilePicture +
-              localStorage.setItem("user", JSON.stringify(data)) +
-              console.log(JSON.stringify(localStorage.getItem("user")))}
-        </p>
-      </header>
-      <div className="cardHolder" style={{ width: "95%;", display: "flex" }}>
-        <Posts />
-      </div>
+    <div>
+      {posts.map((post) => (
+        <div key={post.id} onClick={() => handlePostClick(post.id)}>
+          <h1>{console.log(post.authorId)}</h1>
+          <img src={post.image} alt="" />
+          <p>{post.title}</p>
+        </div>
+      ))}
+      <Comment isOpen={isModalOpen} onClose={handleModalClose} postid={selectedPostId} />
     </div>
   );
-}
+};
 
 export default App;

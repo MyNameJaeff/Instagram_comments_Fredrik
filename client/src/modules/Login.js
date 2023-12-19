@@ -1,35 +1,52 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import React from "react";
 
 export const Login = () => {
-  const initialFormData = {
+  const [usr, setUsr] = useState({
     password: "",
     email: "",
-  };
+  });
 
-  const [formData, setFormData] = useState(initialFormData);
+  const navigate = useNavigate();
+
+  axios.defaults.withCredentials = true;
+
+  useEffect(() => {
+    axios.get("/login").then((res) => {
+      const isLoggedIn = res.data.isLoggedIn;
+      if (isLoggedIn) {
+        navigate("/");
+      } else {
+        return;
+      }
+    });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // Send POST request
-      await axios.post("http://localhost:3001/login", formData);
-
-      console.log("HTTP req successful", formData);
-
-      setFormData(initialFormData);
+      const resp = await axios.post("/login", usr);
+      console.log(resp);
+      const loggedIn = resp.data.isLoggedIn;
+      if (loggedIn) {
+        localStorage.setItem("user", JSON.stringify(resp.data.user));
+        navigate("/");
+      } else {
+        alert("Wrong email or password");
+        return;
+      }
     } catch (err) {
       alert(err.message);
     }
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setUsr((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   return (
@@ -45,7 +62,6 @@ export const Login = () => {
             id="exampleInputEmail1"
             aria-describedby="emailHelp"
             placeholder="Enter email"
-            value={formData.email}
             onInput={handleChange}
             required
           />
@@ -61,7 +77,6 @@ export const Login = () => {
             className="form-control"
             id="exampleInputPassword1"
             placeholder="Password"
-            value={formData.password}
             onInput={handleChange}
             required
           />

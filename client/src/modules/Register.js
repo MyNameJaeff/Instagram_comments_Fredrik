@@ -1,41 +1,36 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export const Register = () => {
-  const initialFormData = {
+  const [usr, setUsr] = useState({
     name: "",
     password: "",
     email: "",
     passwordCheck: "",
-  };
-
-  const [formData, setFormData] = useState(initialFormData);
+  });
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      if (formData.password !== formData.passwordCheck) {
+      if (usr.password !== usr.passwordCheck) {
         alert("Passwords do not match!");
         return;
       }
-
-      // Send POST request
-      await axios.post("http://localhost:3001/register", formData);
-
-      console.log("HTTP req successful", formData);
-
-      setFormData(initialFormData);
+      await axios.post("/register", usr);
+      navigate("/");
     } catch (err) {
       alert(err.message);
     }
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setUsr((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   return (
@@ -50,7 +45,6 @@ export const Register = () => {
             name="name"
             id="exampleInputUsername1"
             placeholder="Enter Username"
-            value={formData.name}
             onInput={handleChange}
             required
           />
@@ -63,7 +57,6 @@ export const Register = () => {
             className="form-control"
             id="exampleInputEmail1"
             placeholder="Enter email"
-            value={formData.email}
             onInput={handleChange}
             required
           />
@@ -76,7 +69,6 @@ export const Register = () => {
             className="form-control"
             id="password"
             placeholder="Password"
-            value={formData.password}
             onInput={handleChange}
             required
           />
@@ -89,7 +81,6 @@ export const Register = () => {
             className="form-control"
             id="passwordCheck"
             placeholder="Password (again)"
-            value={formData.passwordCheck}
             onInput={handleChange}
             required
           />

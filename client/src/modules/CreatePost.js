@@ -1,37 +1,29 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export const Register = () => {
-  const initialFormData = {
+  const [post, setPost] = useState({
     header: "",
     content: "",
     image: "",
-  };
-
-  const [formData, setFormData] = useState(initialFormData);
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      console.log(JSON.parse(localStorage.getItem("user")));
-      formData.authorId = JSON.parse(localStorage.getItem("user")).userId;
-      console.log(formData);
-      await axios.post("http://localhost:3001/createPost", formData);
-
-      console.log("HTTP req successful", formData);
-
-      setFormData(initialFormData);
+      axios.post("/post", post);
+      navigator("/");
     } catch (err) {
       alert(err.message);
     }
   };
-
+  const navigator = useNavigate();
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setPost((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   return (
@@ -46,7 +38,6 @@ export const Register = () => {
             name="header"
             id="header"
             placeholder="Enter Header"
-            value={formData.header}
             onInput={handleChange}
             required
           />
@@ -59,7 +50,6 @@ export const Register = () => {
             className="form-control"
             id="content"
             placeholder="Enter content"
-            value={formData.content}
             onInput={handleChange}
             required
           />
@@ -72,7 +62,6 @@ export const Register = () => {
             className="form-control"
             id="image"
             placeholder="Image link"
-            value={formData.image}
             onInput={handleChange}
             required
           />
